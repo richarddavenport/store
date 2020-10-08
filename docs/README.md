@@ -4,7 +4,7 @@
   NGXS is a state management pattern + library for Angular
   <br />
   <br />
-  <a href="https://now-examples-slackin-eqzjxuxoem.now.sh/"><img src="https://now-examples-slackin-eqzjxuxoem.now.sh/badge.svg"></a> <a href="https://badge.fury.io/js/%40ngxs%2Fstore"><img src="https://badge.fury.io/js/%40ngxs%2Fstore.svg"></a> <a href="https://codeclimate.com/github/ngxs/store/maintainability"><img src="https://api.codeclimate.com/v1/badges/5b43106a1ddff7d76a04/maintainability" /></a> <a href="https://codeclimate.com/github/ngxs/store/test_coverage"><img src="https://api.codeclimate.com/v1/badges/5b43106a1ddff7d76a04/test_coverage" /></a> <a href="https://circleci.com/gh/ngxs/store"><img src="https://circleci.com/gh/ngxs/store/tree/master.svg?style=svg"></a>
+  <a href="https://join.slack.com/t/ngxs/shared_invite/zt-by26i24h-2CC5~vqwNCiZa~RRibh60Q"><img src="https://img.shields.io/badge/slack-join%20us-blue.svg?style=flat&logo=slack"></a> <a href="https://badge.fury.io/js/%40ngxs%2Fstore"><img src="https://badge.fury.io/js/%40ngxs%2Fstore.svg"></a> <a href="https://codeclimate.com/github/ngxs/store/maintainability"><img src="https://api.codeclimate.com/v1/badges/5b43106a1ddff7d76a04/maintainability" /></a> <a href="https://codeclimate.com/github/ngxs/store/test_coverage"><img src="https://api.codeclimate.com/v1/badges/5b43106a1ddff7d76a04/test_coverage" /></a> <a href="https://circleci.com/gh/ngxs/store"><img src="https://circleci.com/gh/ngxs/store/tree/master.svg?style=svg"></a>
 </p>
 
 ## ❓ What is NGXS?
@@ -14,6 +14,10 @@ truth for your application's state, providing simple rules for predictable state
 
 NGXS is modeled after the CQRS pattern popularly implemented in libraries like Redux and NgRx
 but reduces boilerplate by using modern TypeScript features such as classes and decorators.
+
+## 🌱 Does NGXS work with Ivy?
+
+Yes, it does, and very easily. Check out the [NGXS Ivy migration guide](https://ngxs.io/advanced/ivy-migration-guide) for details.
 
 ## 👋 New to NGXS?
 
@@ -25,7 +29,7 @@ and then explore the rich ecosystem of examples in the [community resources](com
 For questions, please ask them on Stack Overflow with the `ngxs` tag:
 https://stackoverflow.com/questions/ask?tags=ngxs
 
-To chat with other users and contributors join us on Slack: https://now-examples-slackin-eqzjxuxoem.now.sh/
+To chat with other users and contributors join us on Slack: https://join.slack.com/t/ngxs/shared_invite/zt-by26i24h-2CC5~vqwNCiZa~RRibh60Q
 
 If you think there is a bug in this library, you can open an issue on GitHub (https://github.com/ngxs/store/issues/new). If possible a link to a http://stackblitz.com (or github) repo with a repro or a failing test would be great.
 

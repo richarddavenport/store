@@ -7,11 +7,14 @@
       "@integration/*": ["./app/*"]
     },
     "module": "commonjs",
+    "target": "es2016",
     "types": ["node"],
     "typeRoots": ["../node_modules/@types"]
   },
-  "exclude": ["**/*.spec.ts", "node_modules"],
+  "files": ["main.server.ts", "server.ts"],
+  "exclude": ["cypress"],
   "angularCompilerOptions": {
+    "disableTypeScriptVersionCheck": true,
     "entryModule": "app/app.server.module#AppServerModule"
   }
 }

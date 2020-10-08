@@ -96,12 +96,14 @@ the state portion you are dealing with.
 Let's create a selector that will return a list of pandas from the animals.
 
 ```ts
+import { Injectable } from '@angular/core';
 import { State, Selector } from '@ngxs/store';
 
 @State<string[]>({
   name: 'animals',
   defaults: []
 })
+@Injectable()
 export class ZooState {
   @Selector()
   static pandas(state: string[]) {
@@ -114,7 +116,7 @@ Notice, the `state` is just the local state for this `ZooState` class. Now in ou
 we simply do:
 
 ```ts
-@Component({...})
+@Component({ ... })
 export class AppComponent {
   @Select(ZooState.pandas) pandas$: Observable<string[]>;
 }
@@ -172,6 +174,7 @@ For instance, I can have a Lazy Selector that will filter my pandas to the provi
   name: 'animals',
   defaults: []
 })
+@Injectable()
 export class ZooState {
   @Selector()
   static pandas(state: string[]) {
@@ -211,14 +214,12 @@ For instance, I can have a Dynamic Selector that will filter my pandas to the pr
   name: 'animals',
   defaults: []
 })
+@Injectable()
 export class ZooState {
   static pandas(type: string) {
-    return createSelector(
-      [ZooState],
-      (state: string[]) => {
-        return state.filter(s => s.indexOf('panda') > -1).filter(s => s.indexOf(type) > -1);
-      }
-    );
+    return createSelector([ZooState], (state: string[]) => {
+      return state.filter(s => s.indexOf('panda') > -1).filter(s => s.indexOf(type) > -1);
+    });
   }
 }
 ```
@@ -252,12 +253,9 @@ An interesting use case would be to allow for a selector to be reused to select 
 ```ts
 export class SharedSelectors {
   static getEntities(stateClass) {
-    return createSelector(
-      [stateClass],
-      (state: { entities: any[] }) => {
-        return state.entities;
-      }
-    );
+    return createSelector([stateClass], (state: { entities: any[] }) => {
+      return state.entities;
+    });
   }
 }
 ```
@@ -287,9 +285,11 @@ If you do not change the Selector Options (see [above](#selector-options)) then 
 
 ```ts
 @State<PreferencesStateModel>({ ... })
+@Injectable()
 export class PreferencesState { ... }
 
 @State<string[]>({ ... })
+@Injectable()
 export class ZooState {
 
   @Selector([PreferencesState])
@@ -315,9 +315,11 @@ In NGXS v4 and above the default value of the [`injectContainerState`](#injectco
 
 ```ts
 @State<PreferencesStateModel>({ ... })
+@Injectable()
 export class PreferencesState { ... }
 
 @State<string[]>({ ... })
+@Injectable()
 export class ZooState {
 
  @Selector([ZooState, PreferencesState])
@@ -364,97 +366,7 @@ now we can use this `zooThemeParks` selector anywhere in our application.
 
 ### The Order of Interacting Selectors
 
-This topic may be helpful for those users who keep their selectors in separate classes. Let's look at the code below:
-
-```ts
-// counter.state.ts
-export interface CounterStateModel {
-  counter: number;
-}
-
-@State<CounterStateModel>({
-  name: 'counter',
-  defaults: {
-    counter: 0
-  }
-})
-export class CounterState {}
-
-// counter.query.ts
-export class CounterQuery {
-  @Selector([CounterQuery.getCounter])
-  static getCounterCube(counter: number): number {
-    return counter ** 3;
-  }
-
-  // Note: this selector being declared after its usage will cause an issue!!!
-  @Selector([CounterState])
-  static getCounter(state: CounterStateModel): number {
-    return state.counter;
-  }
-
-  @Selector([CounterQuery.getCounter])
-  static getCounterSquare(counter: number): number {
-    return counter ** 2;
-  }
-}
-```
-
-As you see in the code above there is a reusable selector `getCounter` that returns the `counter` property from the whole state. The `getCounter` selector is used by 2 other selectors `getCounterSquare` and `getCounterCube`. The snag lies in the `getCounterCube` selector because it's declared before the `getCounter` selector. Let's look at the code emitted by the TypeScript compiler:
-
-```ts
-__decorate([Selector([CounterQuery.getCounter])], CounterQuery, 'getCounterCube', null);
-__decorate([Selector([CounterState])], CounterQuery, 'getCounter', null);
-__decorate([Selector([CounterQuery.getCounter])], CounterQuery, 'getCounterSquare', null);
-```
-
-The `@Selector` decorator tries to access the `getCounter` selector that hasn't been decorated yet. How could we fix it? We have to change the order of selectors:
-
-```ts
-export class CounterQuery {
-  @Selector([CounterState])
-  static getCounter(state: CounterStateModel): number {
-    return state.counter;
-  }
-
-  @Selector([CounterQuery.getCounter])
-  static getCounterCube(counter: number): number {
-    return counter ** 3;
-  }
-
-  @Selector([CounterQuery.getCounter])
-  static getCounterSquare(counter: number): number {
-    return counter ** 2;
-  }
-}
-```
-
-Another solution could be the usage of the `createSelector` function rather than changing the order:
-
-```ts
-export class CounterQuery {
-  static getCounterCube() {
-    return createSelector(
-      [CounterQuery.getCounter()],
-      (counter: number) => counter ** 3
-    );
-  }
-
-  static getCounter() {
-    return createSelector(
-      [CounterState],
-      (state: CounterStateModel) => state.counter
-    );
-  }
-
-  static getCounterSquare() {
-    return createSelector(
-      [CounterQuery.getCounter()],
-      (counter: number) => counter ** 2
-    );
-  }
-}
-```
+In versions of NGXS prior to 3.6.1 there was an issue where the order which the selectors were declared would matter. This was fixed in PR [#1514](https://github.com/ngxs/store/pull/1514) and selectors can now be declared in any arbitrary order.
 
 ### Inheriting Selectors
 
@@ -462,13 +374,10 @@ When we have states that share similar structure, we can extract the shared sele
 
 ```ts
 export class EntitiesState {
-  static entities<T>(): T[] {
-    return createSelector(
-      [this],
-      (state: { entities: T[] }) => {
-        return state.entities;
-      }
-    );
+  static entities<T>() {
+    return createSelector([this], (state: { entities: T[] }) => {
+      return state.entities;
+    });
   }
 
   //...
@@ -488,6 +397,7 @@ export interface UsersStateModel {
     entities: []
   }
 })
+@Injectable()
 export class UsersState extends EntitiesState {
   //...
 }
@@ -502,6 +412,7 @@ export interface ProductsStateModel {
     entities: []
   }
 })
+@Injectable()
 export class ProductsState extends EntitiesState {
   //...
 }
@@ -545,6 +456,7 @@ This error would be reported for each of the selectors defined below but, as dem
   name: 'animals',
   defaults: ['panda', 'horse', 'bee']
 })
+@Injectable()
 export class ZooState {
   @Selector()
   static pandas(state: string[]) {
@@ -559,12 +471,9 @@ export class ZooState {
   }
 
   static bees(type: string) {
-    return createSelector(
-      [ZooState],
-      (state: string[]) => {
-        return state.filter(s => s.indexOf('bee') > -1).filter(s => s.indexOf(type) > -1);
-      }
-    );
+    return createSelector([ZooState], (state: string[]) => {
+      return state.filter(s => s.indexOf('bee') > -1).filter(s => s.indexOf(type) > -1);
+    });
   }
 }
 ```
@@ -577,6 +486,7 @@ See https://github.com/ng-packagr/ng-packagr/issues/696#issuecomment-387114613
   name: 'animals',
   defaults: ['panda', 'horse', 'bee']
 })
+@Injectable()
 export class ZooState {
   @Selector()
   static pandas(state: string[]) {
@@ -593,13 +503,39 @@ export class ZooState {
   }
 
   static bees(type: string) {
-    const selector = createSelector(
-      [ZooState],
-      (state: string[]) => {
-        return state.filter(s => s.indexOf('bee') > -1).filter(s => s.indexOf(type) > -1);
-      }
-    );
+    const selector = createSelector([ZooState], (state: string[]) => {
+      return state.filter(s => s.indexOf('bee') > -1).filter(s => s.indexOf(type) > -1);
+    });
     return selector;
   }
 }
 ```
+
+### Using Select Decorator with `strictPropertyInitialization`
+
+If `strictPropertyInitialization` option is enabled then the TypeScript compiler will require all class properties to be explicitly initialized in the constructor. Given the following code:
+
+```ts
+@Component({ ... })
+export class ZooComponent {
+  @Select(ZooState.pandas) pandas$: Observable<string[]>;
+}
+```
+
+In the above example the compiler will emit the following error only if `strictPropertyInitialization` is turned on:
+
+```
+// Type error: Property 'pandas$' has no initializer
+// and is not definitely assigned in the constructor
+```
+
+We can solve that by applying the [definite assignment assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-7.html#definite-assignment-assertions) to `pandas$` property declaration (note the added exclamation mark):
+
+```ts
+@Component({ ... })
+export class ZooComponent {
+  @Select(ZooState.pandas) pandas$!: Observable<string[]>;
+}
+```
+
+By adding the definite assignment assertion we're telling the type-checker that we're sure that `pandas$` property will be initialized (by the `@Select` decorator).

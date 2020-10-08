@@ -23,6 +23,7 @@ How are feature states added to the global state graph? Assume you've got a `Zoo
   name: 'zoos',
   defaults: []
 })
+@Injectable()
 export class ZoosState {}
 ```
 
@@ -33,10 +34,11 @@ And it's registered in the root module via `NgxsModule.forRoot([ZoosState])`. As
   name: 'offices',
   defaults: []
 })
+@Injectable()
 export class OfficesState {}
 ```
 
-You register this state is some lazy-loaded module via `NgxsModule.forFeature([OfficesState])`. After the lazy module is loaded - the global state will have such signature:
+You register this state in some lazy-loaded module via `NgxsModule.forFeature([OfficesState])`. After the lazy module is loaded - the global state will have such signature:
 
 ```ts
 {

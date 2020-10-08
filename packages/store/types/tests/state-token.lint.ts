@@ -1,7 +1,7 @@
 /// <reference types="@types/jest" />
 import { State, NgxsModule, StateToken, Select, Selector, Store } from '@ngxs/store';
 import { TestBed } from '@angular/core/testing';
-import { Component } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { assertType } from './utils/assert-type';
@@ -20,6 +20,7 @@ describe('[TEST]: StateToken', () => {
       name: TODO_LIST_TOKEN, // $ExpectType StateToken<string[]>
       defaults: [] // $ExpectType never[]
     })
+    @Injectable()
     class TodoListState {}
 
     @State<string[]>({
@@ -43,18 +44,21 @@ describe('[TEST]: StateToken', () => {
       name: BAR_STATE_TOKEN, // $ExpectType StateToken<MyStateModel>
       defaults: {} // $ExpectError
     })
+    @Injectable()
     class BarState {}
 
     @State({
       name: BAR_STATE_TOKEN, // $ExpectType StateToken<MyStateModel>
       defaults: { hello: 'world', world: 1 } // $ExpectType { hello: string; world: number; }
     })
+    @Injectable()
     class BarState2 {}
 
     @State<MyStateModel>({
       name: BAR_STATE_TOKEN, // $ExpectType StateToken<MyStateModel>
       defaults: { hello: 'world', world: 1 } // $ExpectType { hello: string; world: number; }
     })
+    @Injectable()
     class BarState3 {}
 
     const FOO_STATE_TOKEN = new StateToken<number[]>('foo');
@@ -63,6 +67,7 @@ describe('[TEST]: StateToken', () => {
       name: FOO_STATE_TOKEN,
       defaults: true // $ExpectError
     })
+    @Injectable()
     class FooState {}
 
     NgxsModule.forRoot([BarState, BarState2, BarState3, FooState]);
@@ -75,6 +80,7 @@ describe('[TEST]: StateToken', () => {
       name: APP_STATE_TOKEN, // $ExpectType StateToken<{ myApp: number[]; }>
       defaults: ['1'] // $ExpectError
     })
+    @Injectable()
     class AppState {}
 
     @State<string[]>({
@@ -89,6 +95,7 @@ describe('[TEST]: StateToken', () => {
       name: APP3_STATE_TOKEN, // $ExpectType StateToken<unknown>
       defaults: [] // $ExpectType never[]
     })
+    @Injectable()
     class AppState3 {}
 
     NgxsModule.forRoot([AppState, AppState2, AppState3]);
@@ -101,6 +108,7 @@ describe('[TEST]: StateToken', () => {
       name: TODO_LIST_TOKEN,
       defaults: []
     })
+    @Injectable()
     class TodoListState {
       @Selector([TODO_LIST_TOKEN]) // $ExpectType (state: string[]) => string[]
       static todosV1(state: string[]): string[] {
@@ -137,6 +145,7 @@ describe('[TEST]: StateToken', () => {
       name: FOO_TOKEN,
       defaults: { bar: false }
     })
+    @Injectable()
     class FooState {
       @Selector([FOO_TOKEN])
       static bar(state: MyModel) {
@@ -148,16 +157,16 @@ describe('[TEST]: StateToken', () => {
     class AppComponent {
       @Select() appV1$: string; // $ExpectType string
       @Select() appV2$: string; // $ExpectType string
-      @Select((state: string) => state) appV3$: string; // $ExpectError
+      @Select((state: string) => state) appV3$: string; // $ExpectType string
       @Select((state: string) => state) appV3_1$: Observable<string>; // $ExpectType Observable<string>
 
       // Argument of type is not assignable to parameter of type Observable<{ foo: boolean }>
-      @Select(FOO_TOKEN) appV4$: string; // $ExpectError
-      @Select(FOO_TOKEN) appV5$: Observable<string>; // $ExpectError
+      @Select(FOO_TOKEN) appV4$: string; // $ExpectType string
+      @Select(FOO_TOKEN) appV5$: Observable<string>; // $ExpectType Observable<string>
       @Select(FOO_TOKEN) appV6$: Observable<MyModel>; // $ExpectType Observable<MyModel>
 
-      @Select(FooState.bar) bar$: string; // $ExpectError
-      @Select(FooState.bar) bar1$: Observable<string>; // $ExpectError
+      @Select(FooState.bar) bar$: string; // $ExpectType string
+      @Select(FooState.bar) bar1$: Observable<string>; // $ExpectType Observable<string>
       @Select(FooState.bar) bar2$: Observable<boolean>; // $ExpectType Observable<boolean>
 
       constructor(public store: Store) {}

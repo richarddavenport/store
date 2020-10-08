@@ -4,15 +4,30 @@ import { TestBed } from '@angular/core/testing';
 
 import { ReduxDevtoolsMockConnector } from './utils/redux-connector';
 import { createReduxDevtoolsExtension } from './utils/create-devtools';
+import { Injectable } from '@angular/core';
 
 describe('[TEST]: Devtools', () => {
   let devtools: ReduxDevtoolsMockConnector;
   let store: Store;
 
-  @State({ name: 'count', defaults: 0 })
+  class TestActionPayload {
+    public static readonly type = 'TestActionPayload';
+    constructor(public action: string) {}
+  }
+
+  @State({
+    name: 'count',
+    defaults: 0
+  })
+  @Injectable()
   class CountState {
     @Action({ type: 'increment' })
     increment(ctx: StateContext<number>) {
+      ctx.setState(state => state + 1);
+    }
+
+    @Action(TestActionPayload)
+    actionPayload(ctx: StateContext<number>) {
       ctx.setState(state => state + 1);
     }
   }
@@ -27,7 +42,7 @@ describe('[TEST]: Devtools', () => {
       imports: [NgxsModule.forRoot([CountState]), NgxsReduxDevtoolsPluginModule.forRoot()]
     });
 
-    store = TestBed.get(Store);
+    store = TestBed.inject(Store);
   });
 
   it('should be correct execution redux devtools with catching actions', () => {
@@ -242,5 +257,21 @@ describe('[TEST]: Devtools', () => {
         jumped: false
       }
     ]);
+  });
+
+  describe('Action with "action" payload', () => {
+    it('should call send action with action=null', () => {
+      const spy = spyOn(devtools, 'send');
+      store.dispatch(new TestActionPayload('test'));
+      expect(spy).toHaveBeenCalledWith(
+        {
+          action: null,
+          type: 'TestActionPayload'
+        },
+        {
+          count: 1
+        }
+      );
+    });
   });
 });

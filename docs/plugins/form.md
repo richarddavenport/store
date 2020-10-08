@@ -51,6 +51,7 @@ export class SomeModule {}
 Define your default form state as part of your application state.
 
 ```ts
+import { Injectable } from '@angular/core';
 import { State } from '@ngxs/store';
 
 @State({
@@ -64,6 +65,7 @@ import { State } from '@ngxs/store';
     }
   }
 })
+@Injectable()
 export class NovelsState {}
 ```
 
@@ -128,6 +130,7 @@ The form plugin comes with the following `actions` out of the box:
 - `SetFormEnabled(path)` - Set the form to enabled
 - `SetFormDirty(path)` - Set the form to dirty (shortcut for `UpdateFormDirty`)
 - `SetFormPristine(path)` - Set the form to pristine (shortcut for `UpdateFormDirty`)
+- `ResetForm({ path, value? })` - Reset the form with or without the form value.
 
 ### Updating Specific Form Properties
 
@@ -153,18 +156,21 @@ interface NovelsStateModel {
     }
   }
 })
+@Injectable()
 export class NovelsState {}
 ```
 
 The state contains information about the new novel name and its authors. Let's create a component that will render the reactive form with bounded `ngxsForm` directive:
 
 ```ts
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+
 @Component({
   selector: 'new-novel-form',
   template: `
     <form [formGroup]="newNovelForm" ngxsForm="novels.newNovelForm" (ngSubmit)="onSubmit()">
       <input type="text" formControlName="novelName" />
-
       <div
         formArrayName="authors"
         *ngFor="let author of newNovelForm.get('authors').controls; index as index"
@@ -173,20 +179,23 @@ The state contains information about the new novel name and its authors. Let's c
           <input formControlName="name" />
         </div>
       </div>
-
       <button type="submit">Create</button>
     </form>
   `
 })
 export class NewNovelComponent {
-  newNovelForm = new FormGroup({
-    novelName: new FormControl('Zenith'),
-    authors: new FormArray([
-      new FormGroup({
-        name: new FormControl('Sasha Alsberg')
-      })
-    ])
-  });
+  newNovelForm: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.newNovelForm = this.fb.group({
+      novelName: 'Zenith',
+      authors: this.fb.array([
+        this.fb.group({
+          name: 'Sasha Alsberg'
+        })
+      ])
+    });
+  }
 
   onSubmit() {
     //

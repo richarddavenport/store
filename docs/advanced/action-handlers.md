@@ -45,9 +45,10 @@ Below is a action handler that filters for `RouteNavigate` actions and then tell
 route.
 
 ```ts
+import { Injectable } from '@angular/core';
 import { Actions, ofActionDispatched } from '@ngxs/store';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RouteHandler {
   constructor(private router: Router, private actions$: Actions) {
     this.actions$
@@ -90,6 +91,31 @@ export class CartComponent {
 
   ngOnInit() {
     this.actions$.pipe(ofActionSuccessful(CartDelete)).subscribe(() => alert('Item deleted'));
+  }
+}
+```
+
+Remember to unsubscribe from an action handler with something like this:
+
+```ts
+@Component({ ... })
+export class CartComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
+
+  constructor(private actions$: Actions) {}
+
+  ngOnInit() {
+    this.actions$
+      .pipe(
+        ofActionSuccessful(CartDelete),
+        takeUntil(this.ngUnsubscribe)
+      )
+      .subscribe(() => alert('Item deleted'));
+  }
+
+  ngOnDestroy() {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }
 ```
